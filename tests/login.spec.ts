@@ -1,9 +1,17 @@
 import request from 'supertest';
-import { app } from '../src/server'; // Assuming you export the app from src/app.ts
+import { app } from '../src/server'; // Assuming you export the app from src/server.ts
+import { connectionSource } from '../src/database/ormconfig';
 
 describe('Auth API', () => {
+  beforeAll(async () => {
+    await connectionSource.initialize();
+  }, 10000); // Increase timeout to 10 seconds
+
+  afterAll(async () => {
+    await connectionSource.destroy();
+  });
+
   it('should log in user successfully with correct credentials', async () => {
-    // Register a user first
     await request(app)
       .post('/auth/register')
       .send({
@@ -14,7 +22,6 @@ describe('Auth API', () => {
         phone: '1234567890',
       });
 
-    // Now attempt to log in
     const res = await request(app)
       .post('/auth/login')
       .send({

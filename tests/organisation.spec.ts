@@ -1,11 +1,13 @@
 import request from 'supertest';
-import { app } from '../src/server'; // Assuming you export the app from src/app.ts
+import { app } from '../src/server'; // Assuming you export the app from src/server.ts
+import { connectionSource } from '../src/database/ormconfig';
 
 describe('Organisation API', () => {
   let authToken: string;
 
   beforeAll(async () => {
-    // Register a user and obtain the auth token
+    await connectionSource.initialize();
+
     const registerRes = await request(app)
       .post('/auth/register')
       .send({
@@ -17,6 +19,10 @@ describe('Organisation API', () => {
       });
 
     authToken = registerRes.body.data.accessToken;
+  }, 10000); // Increase timeout to 10 seconds
+
+  afterAll(async () => {
+    await connectionSource.destroy();
   });
 
   it('should create a new organisation', async () => {
@@ -44,7 +50,6 @@ describe('Organisation API', () => {
   });
 
   it('should retrieve a specific organisation by ID', async () => {
-    // First, retrieve organisations to get an orgId
     const orgsRes = await request(app)
       .get('/api/organisations')
       .set('Authorization', `Bearer ${authToken}`);
