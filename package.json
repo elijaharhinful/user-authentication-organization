@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "start:dev": "ts-node-dev --respawn --transpile-only ./src/server"
+    "start:dev": "ts-node-dev --respawn --transpile-only ./src/server",
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "author": "Defacto",
   "license": "ISC",
