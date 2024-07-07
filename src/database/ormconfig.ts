@@ -12,9 +12,12 @@ export const connectionSource = new DataSource({
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  synchronize: true,
+  synchronize: false, // Set this to false in production
   logging: false,
   entities: [User, Organisation],
-  migrations: [],
+  migrations: ["dist/migrations/*.js"],
   subscribers: [],
+  ssl: process.env.NODE_ENV === 'production' ? {
+    rejectUnauthorized: false
+  } : false,
 });
