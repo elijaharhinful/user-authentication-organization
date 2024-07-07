@@ -7,11 +7,6 @@ export const create = async (req: Request, res: Response) => {
   const user = req.user as User;
   const { name, description } = req.body;
 
-  // const { organisation, errors } = await createOrganisation(user, name, description);
-  // if (errors) {
-  //   return res.status(422).json({ errors });
-  // }
-
   const result = await createOrganisation(user, name, description);;
 
   if (!result.success) {
@@ -70,9 +65,14 @@ export const getById = async (req: Request, res: Response) => {
   const user = req.user as User;
   const { orgId } = req.params;
 
-  const organisation = await getOrganisationById(user, orgId);
+  const {organisation, access} = await getOrganisationById(user, orgId);
+  
   if (!organisation) {
     return res.status(404).json({ status: "error", message: "Organisation not found" });
+  }
+
+  if (!access) {
+    return res.status(403).json({ status: "error", message: "You do not have access to this organisation" });
   }
 
   res.status(200).json({

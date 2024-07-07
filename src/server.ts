@@ -40,9 +40,20 @@ readdirSync("./src/routes").forEach((file) => {
   }
 });
 
-if (require.main === module) {
-  app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-    console.log(`API documentation available at http://localhost:${PORT}/api-docs`);
-  });
+// Only initialize if not already initialized (for tests)
+if (!connectionSource.isInitialized) {
+  connectionSource
+    .initialize()
+    .then(() => {
+      console.log("Database Connected");
+      if (require.main === module) {
+        app.listen(PORT, () => {
+          console.log(`Server is running on http://localhost:${PORT}`);
+          console.log(`API documentation available at http://localhost:${PORT}/api-docs`);
+        });
+      }
+    })
+    .catch((error) => console.log(error));
 }
+
+export { connectionSource };

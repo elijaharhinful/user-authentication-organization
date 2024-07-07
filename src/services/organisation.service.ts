@@ -26,7 +26,7 @@ export const createOrganisation = async (user: User, name: string, description: 
     return { success: true, organisation };
   } catch (error) {
     if (error instanceof Error) {
-      return { success:false, errors: [{ field: "general", message: error.message }] };
+      return { success: false, errors: [{ field: "general", message: error.message }] };
     } else {
       return { success: false, errors: [{ field: "general", message: "An unknown error occurred" }] };
     }
@@ -46,14 +46,22 @@ export const getOrganisations = async (user: User) => {
 
 export const getOrganisationById = async (user: User, orgId: string) => {
   const organisationRepository = connectionSource.getRepository(Organisation);
+
+  // Fetch the organisation by ID
   const organisation = await organisationRepository
     .createQueryBuilder("organisation")
     .leftJoinAndSelect("organisation.users", "user")
     .where("organisation.orgId = :orgId", { orgId })
-    .andWhere("user.userId = :userId", { userId: user.userId })
     .getOne();
 
-  return organisation;
+  if (!organisation) {
+    return { organisation: null, access: false };
+  }
+
+  // Check if the user has access to the organisation
+  const hasAccess = organisation.users.some(orgUser => orgUser.userId === user.userId);
+
+  return { organisation, access: hasAccess };
 };
 
 export const OrganisationService = {

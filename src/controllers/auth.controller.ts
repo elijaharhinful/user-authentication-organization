@@ -29,6 +29,8 @@ export const register = async (req: Request, res: Response) => {
   });
 };
 
+
+
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -41,13 +43,12 @@ export const login = async (req: Request, res: Response) => {
     } else {
       // Authentication failures
       return res.status(401).json({
-        tatus: "Bad request",
+        status: "Bad request",
         message: "Authentication failed",
         statusCode: 401
       });
     }
   }
-
 
 
   if (!result.user) {
@@ -62,11 +63,13 @@ export const login = async (req: Request, res: Response) => {
     message: "Login successful",
     data: {
       accessToken: result.token,
-      user: result.user.userId,
-      firstName: result.user.firstName,
-      lastName: result.user.lastName,
-      email: result.user.email,
-      phone: result.user.phone,
+      user: {
+        userId: result.user.userId,
+        firstName: result.user.firstName,
+        lastName: result.user.lastName,
+        email: result.user.email,
+        phone: result.user.phone,
+      }
     },
   });
 };

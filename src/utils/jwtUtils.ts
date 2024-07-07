@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { User } from "../entities/User";
 
-const secret = process.env.JWT_SECRET || "your_jwt_secret";
+const secret = process.env.JWT_SECRET || "my_jwt_secret";
 
 export const generateToken = (user: User) => {
   return jwt.sign({ userId: user.userId, email: user.email }, secret, {
