@@ -7,7 +7,7 @@ import morgan from "morgan";
 import { readdirSync } from "fs";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
-import authRoutes from "./routes/auth.routes"; // Import auth routes explicitly
+const authRoutes = require("./routes/auth.routes"); // Import auth routes explicitly
 
 export const app: Application = express();
 const PORT = process.env.PORT || 3000;
@@ -19,7 +19,7 @@ app.use(cors());
 app.use(morgan("dev"));
 
 // Apply auth routes separately
-app.use("/auth", authRoutes);
+// app.use("/auth", authRoutes);
 
 // Swagger UI setup
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -32,9 +32,18 @@ connectionSource
   })
   .catch((error) => console.log(error));
 
+
 // Serve all other routes dynamically using readdirSync
+const isProduction = process.env.NODE_ENV === 'production';
+const fileExtension = isProduction ? '.js' : '.ts';
+
+// Use dynamic import for auth routes
+import(`./routes/auth.routes${fileExtension}`).then((authRoutes) => {
+  app.use("/auth", authRoutes.default || authRoutes);
+});
+
 readdirSync("./src/routes").forEach((file) => {
-  if (file.endsWith(".ts") && file !== "auth.route.ts") { // Exclude auth.route.ts
+  if (file.endsWith(fileExtension) && file !== `auth.route${fileExtension}`) { // Exclude auth.route.ts
     const route = require(`./routes/${file}`);
     app.use("/api", route.default || route);
   }
