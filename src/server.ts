@@ -10,7 +10,7 @@ import swaggerSpec from "./swagger";
 const authRoutes = require("./routes/auth.routes"); // Import auth routes explicitly
 
 export const app: Application = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // middleware setup
 app.use(express.json());
@@ -25,12 +25,12 @@ app.use(morgan("dev"));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // create database connection
-connectionSource
-  .initialize()
-  .then(async () => {
-    console.log("Database Connected");
-  })
-  .catch((error) => console.log(error));
+// connectionSource
+//   .initialize()
+//   .then(async () => {
+//     console.log("Database Connected");
+//   })
+//   .catch((error) => console.log(error));
 
 
 // Serve all other routes dynamically using readdirSync
@@ -49,20 +49,31 @@ readdirSync("./src/routes").forEach((file) => {
   }
 });
 
-// Only initialize if not already initialized (for tests)
+// Simple GET endpoint
+app.get('/', (req, res) => {
+  res.send('The API is working');
+});
+
+/// Only initialize if not already initialized (for tests)
 if (!connectionSource.isInitialized) {
   connectionSource
     .initialize()
     .then(() => {
       console.log("Database Connected");
-      if (require.main === module) {
-        app.listen(PORT, () => {
-          console.log(`Server is running on http://localhost:${PORT}`);
-          console.log(`API documentation available at http://localhost:${PORT}/api-docs`);
-        });
-      }
+      startServer();
     })
     .catch((error) => console.log(error));
+} else {
+  startServer();
+}
+
+function startServer() {
+  if (require.main === module) {
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`);
+      console.log(`API documentation available at http://localhost:${PORT}/api-docs`);
+    });
+  }
 }
 
 export { connectionSource };

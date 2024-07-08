@@ -10,7 +10,7 @@ export const connectionSource = new DataSource({
   type: "postgres",
   url: process.env.DATABASE_URL,
   synchronize: false, // Set this to false in production
-  logging: false,
+  logging: true,
   entities: [User, Organisation],
   migrations: ["dist/migrations/*.js"],
   subscribers: [],
